@@ -103,8 +103,8 @@ export function formatBuildTime(seconds) {
 
 /**
  * Generate GitHub commit URL
- * @param {string} repoOwner - Repository owner (e.g., 'TLC-Community-Survey')
- * @param {string} repoName - Repository name (e.g., 'Survey')
+ * @param {string} repoOwner - Repository owner (e.g., 'fringemonkey')
+ * @param {string} repoName - Repository name (e.g., 'cocs-bot')
  * @param {string} commitHash - Commit hash
  * @returns {string} GitHub commit URL
  */

@@ -88,9 +88,9 @@ async function handleWebhook(request, env) {
     const deploymentInfo = parseDeploymentEvent(payload);
 
     // Generate GitHub commit URL if we have commit hash
-    // Default to TLC-Community-Survey/Survey repository
-    const repoOwner = env.GITHUB_REPO_OWNER || 'TLC-Community-Survey';
-    const repoName = env.GITHUB_REPO_NAME || 'Survey';
+    // Default to fringemonkey/cocs-bot repository
+    const repoOwner = env.GITHUB_REPO_OWNER || 'fringemonkey';
+    const repoName = env.GITHUB_REPO_NAME || 'cocs-bot';
     
     if (deploymentInfo.commitHash && !deploymentInfo.commitUrl) {
       deploymentInfo.commitUrl = getCommitUrl(repoOwner, repoName, deploymentInfo.commitHash);

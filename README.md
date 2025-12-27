@@ -86,12 +86,12 @@ npx wrangler secret put DISCORD_CHANNEL_ID
 npx wrangler secret put WEBHOOK_SECRET
 # Enter a random secret string
 
-# Optional: Set GitHub repo info (defaults to TLC-Community-Survey/Survey)
+# Optional: Set GitHub repo info (defaults to fringemonkey/cocs-bot)
 npx wrangler secret put GITHUB_REPO_OWNER
-# Enter: TLC-Community-Survey
+# Enter: fringemonkey
 
 npx wrangler secret put GITHUB_REPO_NAME
-# Enter: Survey
+# Enter: cocs-bot
 ```
 
 ### 5. Deploy
@@ -180,8 +180,8 @@ Build notifications include:
 | `DISCORD_BOT_TOKEN` | Yes | Discord bot token from Developer Portal |
 | `DISCORD_CHANNEL_ID` | Yes | Discord channel ID for notifications |
 | `WEBHOOK_SECRET` | No | Secret for validating webhook requests |
-| `GITHUB_REPO_OWNER` | No | GitHub repo owner (default: `TLC-Community-Survey`) |
-| `GITHUB_REPO_NAME` | No | GitHub repo name (default: `Survey`) |
+| `GITHUB_REPO_OWNER` | No | GitHub repo owner (default: `fringemonkey`) |
+| `GITHUB_REPO_NAME` | No | GitHub repo name (default: `cocs-bot`) |
 
 ## Future Expansion
 
