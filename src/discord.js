@@ -1,7 +1,108 @@
 /**
  * Discord bot client and message formatting
- * Uses Discord.js for full bot functionality with future expansion capabilities
+ * Uses Discord REST API for Cloudflare Workers compatibility
+ * Structured for future expansion with commands and interactions
  */
+
+// Discord API base URL
+const DISCORD_API_BASE = 'https://discord.com/api/v10';
+
+/**
+ * Discord bot client class
+ * Handles authentication and message sending via Discord REST API
+ */
+export class DiscordBot {
+  constructor(token) {
+    this.token = token;
+    this.apiBase = DISCORD_API_BASE;
+  }
+
+  /**
+   * Get authorization headers for Discord API requests
+   * @returns {Object} Headers object
+   */
+  getHeaders() {
+    return {
+      'Authorization': `Bot ${this.token}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'COCS-Bot/1.0'
+    };
+  }
+
+  /**
+   * Send a message to a Discord channel
+   * @param {string} channelId - Discord channel ID
+   * @param {Object} messageData - Message data (content, embeds, etc.)
+   * @returns {Promise<Object>} Sent message object
+   */
+  async sendMessage(channelId, messageData) {
+    const url = `${this.apiBase}/channels/${channelId}/messages`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(messageData)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Discord API error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Send build notification to Discord channel
+   * @param {string} channelId - Discord channel ID to send message to
+   * @param {Object} deploymentInfo - Parsed deployment information
+   * @returns {Promise<Object>} Sent message object
+   */
+  async sendBuildNotification(channelId, deploymentInfo) {
+    const embed = createBuildEmbed(deploymentInfo);
+    
+    return await this.sendMessage(channelId, {
+      embeds: [embed]
+    });
+  }
+
+  /**
+   * Get bot user information
+   * @returns {Promise<Object>} Bot user object
+   */
+  async getBotUser() {
+    const url = `${this.apiBase}/users/@me`;
+    
+    const response = await fetch(url, {
+      headers: this.getHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get bot user: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Get channel information
+   * @param {string} channelId - Channel ID
+   * @returns {Promise<Object>} Channel object
+   */
+  async getChannel(channelId) {
+    const url = `${this.apiBase}/channels/${channelId}`;
+    
+    const response = await fetch(url, {
+      headers: this.getHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get channel: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+}
 
 /**
  * Format a rich embed message for Discord with build details
@@ -158,66 +259,4 @@ function formatBuildTime(seconds) {
   }
   
   return `${minutes}m ${remainingSeconds}s`;
-}
-
-/**
- * Send build notification to Discord channel
- * @param {string} channelId - Discord channel ID to send message to
- * @param {Object} deploymentInfo - Parsed deployment information
- * @param {Object} client - Discord.js client instance
- * @returns {Promise<Object>} Sent message object
- */
-export async function sendBuildNotification(channelId, deploymentInfo, client) {
-  try {
-    const channel = await client.channels.fetch(channelId);
-    
-    if (!channel) {
-      throw new Error(`Channel ${channelId} not found`);
-    }
-
-    if (!channel.isTextBased()) {
-      throw new Error(`Channel ${channelId} is not a text channel`);
-    }
-
-    const embed = createBuildEmbed(deploymentInfo);
-    
-    const message = await channel.send({
-      embeds: [embed]
-    });
-
-    return message;
-  } catch (error) {
-    console.error('Error sending Discord notification:', error);
-    throw error;
-  }
-}
-
-/**
- * Initialize Discord bot client
- * @param {string} token - Discord bot token
- * @returns {Promise<Object>} Discord.js client instance
- */
-export async function initializeBot(token) {
-  // Dynamic import of discord.js (since it's not installed yet, but will be)
-  // For now, we'll use fetch API directly, but structure for discord.js
-  const { Client, GatewayIntentBits } = await import('discord.js');
-  
-  const client = new Client({
-    intents: [
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.MessageContent
-    ]
-  });
-
-  await client.login(token);
-  
-  return new Promise((resolve, reject) => {
-    client.once('ready', () => {
-      console.log(`Discord bot logged in as ${client.user.tag}`);
-      resolve(client);
-    });
-
-    client.once('error', reject);
-  });
 }
