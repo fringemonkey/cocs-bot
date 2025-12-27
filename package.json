@@ -1,0 +1,24 @@
+{
+  "name": "cocs-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for COCS server that reports Cloudflare Pages build notifications",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "cloudflare",
+    "webhook",
+    "build-notifications"
+  ],
+  "author": "fringemonkey",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
