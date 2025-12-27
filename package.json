@@ -18,6 +18,9 @@
   ],
   "author": "fringemonkey",
   "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1"
+  },
   "devDependencies": {
     "wrangler": "^3.0.0"
   }
