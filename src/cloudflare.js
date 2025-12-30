@@ -11,7 +11,18 @@
 export function parseDeploymentEvent(payload) {
   // Cloudflare Pages webhook payload structure
   // Based on common webhook patterns and Cloudflare API documentation
-  const deployment = payload.deployment || payload;
+  const deployment =
+    payload?.deployment ||
+    payload?.payload?.deployment ||
+    payload?.payload ||
+    payload;
+
+  const inferredStatus = inferStatus(payload, deployment);
+  const status =
+    deployment?.latest_stage?.status ||
+    deployment?.status ||
+    inferredStatus ||
+    'unknown';
   
   return {
     // Deployment metadata
@@ -20,15 +31,33 @@ export function parseDeploymentEvent(payload) {
     environment: deployment.environment || 'production',
     
     // Build status
-    status: deployment.latest_stage?.status || deployment.status || 'unknown',
-    isSuccess: (deployment.latest_stage?.status || deployment.status) === 'success',
-    isFailure: (deployment.latest_stage?.status || deployment.status) === 'failure',
+    status,
+    isSuccess: status === 'success',
+    isFailure: status === 'failure',
     
     // Git information
     branch: deployment.branch || deployment.git_branch || 'main',
     commitHash: deployment.commit_hash || deployment.git_commit_hash || '',
     commitMessage: deployment.commit_message || '',
     commitAuthor: deployment.commit_author || deployment.author || '',
+
+    // Repo information (used to build commit URLs)
+    repoOwner:
+      deployment.repo_owner ||
+      deployment.repository?.owner?.login ||
+      deployment.repository?.owner?.name ||
+      payload.repository?.owner?.login ||
+      payload.repository?.owner?.name ||
+      payload.repo_owner ||
+      payload.owner ||
+      '',
+    repoName:
+      deployment.repo_name ||
+      deployment.repository?.name ||
+      payload.repository?.name ||
+      payload.repo_name ||
+      payload.name ||
+      '',
     
     // URLs
     deploymentUrl: deployment.url || deployment.deployment_url || '',
@@ -111,4 +140,19 @@ export function formatBuildTime(seconds) {
 export function getCommitUrl(repoOwner, repoName, commitHash) {
   if (!commitHash) return '';
   return `https://github.com/${repoOwner}/${repoName}/commit/${commitHash}`;
+}
+
+function inferStatus(payload, deployment) {
+  const event =
+    payload?.event ||
+    payload?.type ||
+    payload?.event_type ||
+    deployment?.event ||
+    deployment?.type ||
+    '';
+  if (typeof event !== 'string') return null;
+  const normalized = event.toLowerCase();
+  if (normalized.includes('success')) return 'success';
+  if (normalized.includes('failure')) return 'failure';
+  return null;
 }

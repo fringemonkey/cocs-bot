@@ -3,5 +3,8 @@ compatibility_date = "2024-01-01"
 main = "src/index.js"
 
 # Environment variables are set via:
-# wrangler secret put DISCORD_WEBHOOK_URL
+# wrangler secret put DISCORD_BOT_TOKEN
+# wrangler secret put DISCORD_CHANNEL_ID
 # wrangler secret put WEBHOOK_SECRET (optional)
+# wrangler secret put GITHUB_REPO_OWNER (optional)
+# wrangler secret put GITHUB_REPO_NAME (optional)
